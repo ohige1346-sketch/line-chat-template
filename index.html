@@ -18,7 +18,16 @@ html, body {
  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
-.screen {
+.screen {.screen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 20px;
+    background: #fa4d91;
+    z-index: 5;
+}
   position: relative;
   width: 828px;
   height: 1792px;
