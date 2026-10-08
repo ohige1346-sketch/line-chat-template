@@ -1,12 +1,238 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>家庭日記聊天模板</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭日記聊天模板</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #252025;
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
+}
+
+.phone {
+  position: relative;
+  width: 828px;
+  height: 1792px;
+  margin: auto;
+  overflow: hidden;
+  background: #a35b76;
+}
+
+/* 原始模板作為視覺參考 */
+.reference {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0.25;
+}
+
+/* 頂部固定介面 */
+.top {
+  position: relative;
+  height: 218px;
+  background: linear-gradient(#ff6399, #fa428b);
+  color: white;
+  padding: 35px 35px;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.contact {
+  margin-top: 62px;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.chat {
+  position: relative;
+  height: 1405px;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.message.mom { justify-content: flex-start; }
+.message.daughter { justify-content: flex-end; }
+
+.avatar {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: #b6e0ca;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.bubble {
+  max-width: 580px;
+  padding: 20px 26px;
+  border-radius: 28px;
+  font-size: 30px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #161616;
+}
+
+.mom .bubble {
+  background: white;
+  border: 2px solid #ffc2d7;
+}
+
+.daughter .bubble {
+  background: #ffe0ec;
+  border: 2px solid #ff9cc3;
+}
+
+.time {
+  color: white;
+  font-size: 18px;
+  text-shadow: 0 1px 3px #555;
+}
+
+.bottom {
+  position: relative;
+  height: 169px;
+  background: #ffd5e6;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 38px;
+  color: #ed4e92;
+}
+
+.input {
+  width: 65%;
+  border: 2px solid #f7b2cc;
+  border-radius: 45px;
+  padding: 18px;
+  color: #c996aa;
+  font-size: 30px;
+}
+
+.fiction {
+  position: absolute;
+  right: 15px;
+  bottom: 175px;
+  font-size: 16px;
+  color: white;
+  background: #0008;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+</style>
 </head>
 <body>
-  <h1>家庭日記 LINE 模板</h1>
-  <p>模板初始化完成</p>
+
+<div class="phone">
+  <img class="reference" src="line-template.png.jpg" alt="">
+
+  <div class="top">
+    <div class="status">
+      <span id="phoneTime">22:17</span>
+      <span>▂▄▆ 4G 🔋 <span id="battery">67</span>%</span>
+    </div>
+    <div class="contact">‹　99+　生母😒</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="fiction">虛構劇情</div>
+
+  <div class="bottom">
+    <span>＋</span>
+    <span>🐰</span>
+    <div class="input">Aa</div>
+    <span>🎙</span>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+
+document.getElementById("phoneTime").textContent =
+  params.get("time") || "22:17";
+
+document.getElementById("battery").textContent =
+  params.get("battery") || "67";
+
+const sample = [
+  {role:"mom", text:"妳下班了嗎？"},
+  {role:"mom", text:"記得把這個月生活費轉給我"},
+  {role:"daughter", text:"我上個月才多給三千欸"},
+  {role:"mom", text:"妳哥最近需要繳費用"},
+  {role:"daughter", text:"他不能自己去工作嗎？"},
+  {role:"mom", text:"妳就不能多體諒他嗎？"},
+  {role:"daughter", text:"那我呢？我每天上班也很累"},
+  {role:"mom", text:"妳有工作就已經很好了"},
+  {role:"daughter", text:"……"}
+];
+
+let messages = sample;
+
+try {
+  const supplied = params.get("messages");
+  if (supplied) {
+    const parsed = JSON.parse(supplied);
+    if (Array.isArray(parsed)) messages = parsed;
+  }
+} catch (e) {
+  console.warn("使用預設對話");
+}
+
+const chat = document.getElementById("chat");
+
+messages.slice(0, 10).forEach((item, index) => {
+  if (!item || !["mom", "daughter"].includes(item.role)) return;
+
+  const row = document.createElement("div");
+  row.className = "message " + item.role;
+
+  if (item.role === "mom") {
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "👩";
+    row.appendChild(avatar);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = String(item.text || "");
+  row.appendChild(bubble);
+
+  const time = document.createElement("span");
+  time.className = "time";
+  time.textContent = "22:" + String(5 + index).padStart(2, "0");
+
+  if (item.role === "daughter") {
+    row.insertBefore(time, bubble);
+  } else {
+    row.appendChild(time);
+  }
+
+  chat.appendChild(row);
+});
+</script>
 </body>
 </html>
