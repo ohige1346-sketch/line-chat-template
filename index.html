@@ -3,179 +3,297 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>家庭日記｜虛構聊天</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>家庭日記｜虛構 LINE 聊天</title>
+
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:#222;font-family:"Microsoft JhengHei",Arial,sans-serif}
-.screen{
-  width:828px;height:1792px;
-  position:relative;overflow:hidden;
-  margin:0 auto;
-  background-image:url("line-background.png.png");
-  background-size:100% 100%;
-  background-repeat:no-repeat;
+* {
+  box-sizing: border-box;
 }
-.chat{
-  position:absolute;
-  left:0;right:0;
-  top:285px;bottom:170px;
-  padding:10px 16px;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  gap:18px;
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #222;
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
 }
-.row{
-  display:flex;
-  align-items:flex-end;
-  gap:9px;
-  width:100%;
+
+.screen {
+  position: relative;
+  width: 828px;
+  height: 1792px;
+  margin: 0 auto;
+  overflow: hidden;
+
+  /* 固定粉紅色 LINE 模板 */
+  background-image: url("line-background.png.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-.row.mom{justify-content:flex-start}
-.row.daughter{justify-content:flex-end}
-.avatar{
-  width:64px;height:64px;
-  flex-shrink:0;
-  border-radius:50%;
-  overflow:hidden;
-  background:#fff;
-  border:1px solid #ddd;
+
+/* 聊天區域 */
+.chat {
+  position: absolute;
+  top: 285px;
+  bottom: 170px;
+  left: 0;
+  right: 0;
+
+  padding: 10px 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 18px;
 }
-.avatar img{
-  width:100%;height:100%;
-  object-fit:cover;
+
+/* 每一則訊息 */
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  width: 100%;
 }
-.bubble{
-  position:relative;
-  max-width:580px;
-  padding:17px 24px;
-  border-radius:28px;
-  font-size:29px;
-  line-height:1.4;
-  color:#171717;
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
+
+.row.mom {
+  justify-content: flex-start;
 }
-.mom .bubble{
-  background:#fff;
-  border:2px solid #f5c4d8;
+
+.row.daughter {
+  justify-content: flex-end;
 }
-.daughter .bubble{
-  background:#ffe2ed;
-  border:2px solid #ffadd0;
+
+/* 媽媽固定頭像 */
+.avatar {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #ddd;
 }
-.time{
-  flex-shrink:0;
-  color:#fff;
-  font-size:17px;
-  text-shadow:0 1px 3px #555;
-  margin-bottom:7px;
+
+.avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
-.read{
-  text-align:right;
-  line-height:1.25;
+
+/* 聊天氣泡 */
+.bubble {
+  position: relative;
+  max-width: 550px;
+  padding: 17px 24px;
+  border-radius: 28px;
+
+  font-size: 29px;
+  line-height: 1.4;
+  color: #171717;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
-.fiction{
-  position:absolute;
-  right:14px;
-  bottom:177px;
-  background:rgba(30,20,30,.65);
-  color:#fff;
-  border-radius:10px;
-  font-size:17px;
-  padding:6px 10px;
+
+/* 媽媽：左側白色 */
+.mom .bubble {
+  background: #fff;
+  border: 2px solid #f5c4d8;
+}
+
+/* 女兒：右側粉紅色 */
+.daughter .bubble {
+  background: #ffe2ed;
+  border: 2px solid #ffadd0;
+}
+
+/* 訊息時間 */
+.time {
+  flex-shrink: 0;
+  color: #fff;
+  font-size: 17px;
+  text-shadow: 0 1px 3px #555;
+  margin-bottom: 7px;
+  white-space: pre-line;
+}
+
+.read {
+  text-align: right;
+  line-height: 1.25;
+}
+
+/* 虛構標示 */
+.fiction {
+  position: absolute;
+  right: 14px;
+  bottom: 177px;
+
+  background: rgba(30, 20, 30, .65);
+  color: white;
+  border-radius: 10px;
+
+  font-size: 17px;
+  padding: 6px 10px;
 }
 </style>
 </head>
+
 <body>
+
 <div class="screen">
   <div class="chat" id="chat"></div>
-  
+  <div class="fiction">虛構劇情</div>
 </div>
 
 <script>
-const params=new URLSearchParams(location.search);
+/*
+  Make 串接時可以透過網址傳入：
+  ?messages=JSON內容&time=22:05
+*/
 
-const sample=[
-  {role:"mom",text:"妳下班了嗎？"},
-  {role:"mom",text:"這個月生活費記得轉給我"},
-  {role:"daughter",text:"我上個月才多給三千欸"},
-  {role:"mom",text:"家裡最近開銷比較大"},
-  {role:"daughter",text:"可是我也要付房租"},
-  {role:"mom",text:"妳就不能體諒一下媽媽嗎？"},
-  {role:"daughter",text:"那誰來體諒我？"},
-  {role:"mom",text:"妳現在是在跟我計較？"},
-  {role:"daughter",text:"我只是想留一點錢給自己"}
+const params = new URLSearchParams(window.location.search);
+
+/* 預設測試對話 */
+const sample = [
+  {
+    role: "mom",
+    text: "妳下班了嗎？"
+  },
+  {
+    role: "mom",
+    text: "這個月生活費記得轉給我"
+  },
+  {
+    role: "daughter",
+    text: "我上個月才多給三千欸"
+  },
+  {
+    role: "mom",
+    text: "家裡最近開銷比較大"
+  },
+  {
+    role: "daughter",
+    text: "可是我也要付房租"
+  },
+  {
+    role: "mom",
+    text: "妳就不能體諒一下媽媽嗎？"
+  },
+  {
+    role: "daughter",
+    text: "那誰來體諒我？"
+  },
+  {
+    role: "mom",
+    text: "妳現在是在跟我計較？"
+  },
+  {
+    role: "daughter",
+    text: "我只是想留一點錢給自己"
+  }
 ];
 
-let messages=sample;
-try{
-  const raw=params.get("messages");
-  if(raw){
-    const parsed=JSON.parse(raw);
-    if(Array.isArray(parsed))messages=parsed;
+/* 接收 Make 產生的對話 */
+let messages = sample;
+
+try {
+  const raw = params.get("messages");
+
+  if (raw) {
+    const parsed = JSON.parse(raw);
+
+    if (Array.isArray(parsed)) {
+      messages = parsed;
+    }
   }
-}catch(e){console.warn("使用預設對話")}
-
-const chat=document.getElementById("chat");
-const startTime=params.get("time")||"22:05";
-const parts=startTime.split(":");
-const baseHour=Number(parts[0])||22;
-const baseMinute=Number(parts[1])||0;
-
-function messageTime(index){
-  const total=baseHour*60+baseMinute+index;
-  return String(Math.floor(total/60)%24).padStart(2,"0")
-    +":"+String(total%60).padStart(2,"0");
+} catch (error) {
+  console.warn("對話資料格式錯誤，使用預設對話");
 }
 
-/*
-  先使用原始圖片中的頭像裁切區域。
-  若背景圖的頭像位置不同，下一步再調整。
-*/
-const avatarURL="line-template.png";
+/* 時間設定 */
+const startTime = params.get("time") || "22:05";
+const parts = startTime.split(":");
 
-messages.slice(0,10).forEach((item,index)=>{
-  if(!item||!["mom","daughter"].includes(item.role))return;
+const baseHour = Number(parts[0]) || 22;
+const baseMinute = Number(parts[1]) || 0;
 
-  const row=document.createElement("div");
-  row.className="row "+item.role;
+function messageTime(index) {
+  const total = baseHour * 60 + baseMinute + index;
 
-  if(item.role==="mom"){
-    const avatar=document.createElement("div");
-    avatar.className="avatar";
-    const img=document.createElement("img");
-    img.src=avatarURL;
-    img.alt="媽媽頭像";
-    img.style.objectFit="none";
-    img.style.objectPosition="-16px -374px";
-    img.style.width="828px";
-    img.style.height="1792px";
+  const hour = String(
+    Math.floor(total / 60) % 24
+  ).padStart(2, "0");
+
+  const minute = String(
+    total % 60
+  ).padStart(2, "0");
+
+  return hour + ":" + minute;
+}
+
+/* 媽媽頭像 */
+const avatarURL = "mom-avatar.png";
+
+/* 產生聊天畫面 */
+const chat = document.getElementById("chat");
+
+messages.slice(0, 10).forEach((item, index) => {
+
+  if (!item) return;
+
+  if (!["mom", "daughter"].includes(item.role)) {
+    return;
+  }
+
+  const row = document.createElement("div");
+  row.className = "row " + item.role;
+
+  /* 媽媽頭像 */
+  if (item.role === "mom") {
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+
+    const img = document.createElement("img");
+    img.src = avatarURL;
+    img.alt = "媽媽頭像";
+
     avatar.appendChild(img);
     row.appendChild(avatar);
   }
 
-  const bubble=document.createElement("div");
-  bubble.className="bubble";
-  bubble.textContent=String(item.text||"");
+  /* 聊天內容 */
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = String(item.text || "");
 
-  const time=document.createElement("div");
-  time.className="time";
-  time.textContent=messageTime(index);
+  /* 訊息時間 */
+  const time = document.createElement("div");
+  time.className = "time";
 
-  if(item.role==="daughter"){
+  if (item.role === "daughter") {
+
     time.classList.add("read");
-    time.textContent="已讀\n"+messageTime(index);
+    time.textContent = "已讀\n" + messageTime(index);
+
     row.appendChild(time);
     row.appendChild(bubble);
-  }else{
+
+  } else {
+
+    time.textContent = messageTime(index);
+
     row.appendChild(bubble);
     row.appendChild(time);
   }
 
   chat.appendChild(row);
 });
+
 </script>
+
 </body>
 </html>
