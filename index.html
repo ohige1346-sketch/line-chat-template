@@ -139,7 +139,7 @@ html, body {
 <body>
 
 <div class="screen">
-    <div class="phone-time" id="phoneTime">17:51</div>
+  
     <div class="chat" id="chat"></div>
 </div>
 
@@ -150,9 +150,7 @@ html, body {
 */
 
 const params = new URLSearchParams(window.location.search);
-  // 讀取網址傳入的手機時間
-const phoneTime = params.get("phoneTime") || "17:51";
-document.getElementById("phoneTime").textContent = phoneTime;
+ 
 
 /* 預設測試對話 */
 const sample = [
