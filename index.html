@@ -207,9 +207,11 @@ try {
   if (raw) {
     const parsed = JSON.parse(raw);
 
-    if (Array.isArray(parsed)) {
-      messages = parsed;
-    }
+if (Array.isArray(parsed)) {
+  messages = parsed;
+} else if (parsed && Array.isArray(parsed.messages)) {
+  messages = parsed.messages;
+}
   }
 } catch (error) {
   console.warn("對話資料格式錯誤，使用預設對話");
